@@ -66,6 +66,9 @@
     <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
     <!-- CSS Files -->
     <link id="pagestyle" href="../assets/css/corporate-ui-dashboard.css?v=1.0.0" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
 
 </head>
 
@@ -79,47 +82,51 @@
 
 
         <div class="row">
-
-            <div class="col-sm-4">
+            <!-- Sidebar Pencarian -->
+            <div class="col-md-4">
                 <div class="card card-primary mb-3">
                     <div class="card-header bg-primary text-white">
                         <h5><i class="fa fa-search"></i> Cari Barang</h5>
                     </div>
-                    <div class="card-body d-flex gap-4 flex-column">
-                        <form action="{{route('pelanggan')}}" method="GET" class="d-flex gap-2">
+                    <div class="card-body d-flex flex-column gap-3">
+                        <form action="{{ route('pelanggan') }}" method="GET" class="d-flex gap-2">
                             @csrf
-                            <input type="text" id="cariPelanggan" class="form-control" name="cariPelanggan" placeholder="Masukan : ID Pelanggan [ENTER]">
+                            <input type="text" class="form-control" name="cariPelanggan" placeholder="Masukan ID Pelanggan [ENTER]">
                             <button type="submit" class="btn btn-primary">Cari</button>
                         </form>
-                        <form action="{{route('barang2')}}" method="GET" class="d-flex gap-2">
+                        <form action="{{ route('barang2') }}" method="GET" class="d-flex gap-2">
                             @csrf
-                            <input type="text" id="cari" class="form-control" name="cari" placeholder="Masukan : Kode / Nama Barang  [ENTER]">
+                            <input type="text" class="form-control" name="cari" placeholder="Masukan Kode/Nama Barang [ENTER]">
                             <button type="submit" class="btn btn-primary">Cari</button>
                         </form>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-8">
+
+            <!-- Daftar Barang -->
+            <div class="col-md-8">
                 <div class="card card-primary">
-                    <div class="card-header bg-primary text-white" style="height: 56px; display: flex; align-items: center;">
+                    <div class="card-header bg-primary text-white d-flex align-items-center" style="height: 56px;">
                         <h5 class="mb-0">Daftar Barang</h5>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
+
+
                             <table class="table text-secondary text-center mb-0">
                                 <thead class="bg-primary text-white">
                                     <tr>
-                                        <th class="text-left text-uppercase font-weight-bold">ID</th>
-                                        <th class="text-center text-uppercase font-weight-bold">Produk</th>
-                                        <th class="text-center text-uppercase font-weight-bold">Harga</th>
-                                        <th class="text-center text-uppercase font-weight-bold">Stok</th>
-                                        <th class="text-center text-uppercase font-weight-bold">Aksi</th>
+                                        <th class="text-left">ID</th>
+                                        <th class="text-center">Produk</th>
+                                        <th class="text-center">Harga</th>
+                                        <th class="text-center">Stok</th>
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @if(request('cari'))
                                         @forelse($daftar_barang as $product)
-                                            <form action="{{ route('add') }}" method="POST" class="p-0 m-0">
+                                            <form action="{{ route('add') }}" method="POST">
                                                 @csrf
                                                 <tr>
                                                     <td class="text-left text-secondary">
@@ -157,6 +164,8 @@
                     </div>
                 </div>
             </div>
+        </div>
+
 
 
 
@@ -165,122 +174,129 @@
                     <div class="card-header bg-primary text-white">
                         <h5 class="d-flex justify-content-between"> KASIR
                         <a class="btn btn-danger float-right"
-                            onclick="javascript:return confirm('Apakah anda ingin reset keranjang ?');" href="fungsi/hapus/hapus.php?penjualan=jual">
+                            onclick="javascript:return confirm('Apakah anda ingin reset keranjang ?');" href="{{route('resetkeranjang')}}">
                             <b>RESET KERANJANG</b></a>
                         </h5>
                     </div>
                     <div class="card-body">
-                        <form action="" method="">
+                        <form action="{{ route('bayar') }}" method="POST">
+                            @csrf
                             <div id="keranjang" class="table-responsive">
                                 <table class="table table-bordered">
                                     <tr>
                                         <td class="col-sm-4"><b>Tanggal</b></td>
                                         <td>
-                                            <input type="text" id="tanggal" name="tanggal" class="form-control" value="@php
-                                            setlocale(LC_TIME, 'id_ID.utf8');
-                                            echo strftime("%d %B %Y");
-                                            @endphp" readonly>
+                                            <input type="text" id="tanggal" name="tanggal" class="form-control"
+                                                value="{{ \Carbon\Carbon::now()->isoFormat('YYYY-MM-DD') }}" readonly>
                                         </td>
                                     </tr>
                                 </table>
-                                <table class="table table-bordered">
-                                        <table class="table table-bordered">
-                                            @if(request('cariPelanggan'))
-                                                @forelse($daftar_pelanggan as $pelanggan)
-                                                    <tr>
-                                                        <td class="col-sm-4"><b>Pelanggan dengan ID<input type="text" name="id_pelanggan" class="form-control w-auto" value="{{ $pelanggan->id_pelanggan }}" readonly></b></td>
-                                                        <td>
-                                                            <input type="text" name="nama_pelanggan" class="form-control" value="{{ $pelanggan->nama }}" readonly>
-                                                        </td>
-                                                    </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="2" class="text-center">Masukkan ID pelanggan.</td>
-                                                    </tr>
-                                                @endforelse
-                                            @endif
-                                        </table>
 
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        @if(session()->has('pelanggan') && count(session('pelanggan')) > 0)
+                                            @foreach(session('pelanggan') as $id_pelanggan => $orang)
+                                            <tr>
+                                                <td class="col-sm-4">
+                                                    <b>Pelanggan dengan ID</b><input type="text" name="id_pelanggan" value="{{ $orang['id_pelanggan'] }}" class="form-control bg-transparent border-0" readonly>
+                                                </td>
+                                                <td>{{ $orang['nama'] }}</td>
+                                            </tr>
+                                            @endforeach
+                                        @else
+                                            <tr>
+                                                <td class="col-sm-4">
+                                                    <b>Pelanggan dengan ID</b>
+                                                </td>
+                                                <td colspan="4" class="text-center">Masukkan Id Pelanggan</td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
                                 </table>
 
                                 <table class="table table-bordered w-100" id="example1">
                                     <thead>
                                         <tr>
-                                            <td> No</td>
-                                            <td> Nama Barang</td>
-                                            <td style="width:10%;"> Jumlah</td>
-                                            <td style="width:20%;"> Total</td>
-                                            <td> Kasir</td>
-                                            <td> Aksi</td>
+                                            <td>No</td>
+                                            <td>Nama Barang</td>
+                                            <td>Harga Satuan</td>
+                                            <td>Jumlah</td>
+                                            <td>Total</td>
+                                            <td>Aksi</td>
                                         </tr>
                                     </thead>
                                     @php $no = 1; @endphp
                                     <tbody>
                                         @if(session()->has('keranjang') && count(session('keranjang')) > 0)
-                                        @foreach(session('keranjang') as $id => $item)
-                                        <tr>
-                                            <td>{{ $no++ }}
-                                            </td>
-                                            <td>
-                                                <input type="text" name="nama" value="{{ $item['nama'] }}" class="form-control bg-transparent border-0" readonly>
-                                            </td>
-                                            <td>
-                                                <input type="text" name="hrg_satuan" value="Rp{{ number_format($item['harga'], 0, ',', '.') }}" class="form-control bg-transparent border-0" readonly>
-                                            </td>
-                                            <td>
-                                                <input type="number" name="jumlah" value="{{ $item['stok'] }}" class="form-control bg-transparent border-0">
-                                            </td>
-                                            <td>
-                                                <input type="text" name="total" value="Rp{{ number_format($item['total'], 0, ',', '.') }}" class="form-control bg-transparent border-0" readonly>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    @else
-                                        <tr>
-                                            <td colspan="4" class="text-center">Keranjang kosong</td>
-                                        </tr>
-                                    @endif
-
+                                            @foreach(session('keranjang') as $id => $item)
+                                            <tr>
+                                                <td>{{ $no++ }}</td>
+                                                <td>
+                                                    <input type="text" name="nama[]" value="{{ $item['nama'] }}"
+                                                        class="form-control bg-transparent border-0" readonly>
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="harga[]"
+                                                        value="{{$item['harga']}}"
+                                                        class="form-control bg-transparent border-0" readonly>
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="jumlah[]" value="{{ $item['stok'] }}"
+                                                        class="form-control">
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="total[]"
+                                                        value="{{$item['total']}}"
+                                                        class="form-control bg-transparent border-0" readonly>
+                                                </td>
+                                                <td>
+                                                    <a href="{{ route('hapusItem', $id) }}" class="btn btn-danger btn-sm">Hapus</a>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        @else
+                                            <tr>
+                                                <td colspan="5" class="text-center">Keranjang kosong</td>
+                                            </tr>
+                                        @endif
                                     </tbody>
                                 </table>
                             </div>
-                        </form>
-                        <br/>
 
-                        <div id="kasirnya">
-                            <table class="table table-stripped">
+                            <br/>
 
 
-
+                            <div id="kasirnya">
+                                <table class="table table-stripped">
+                                    @if(isset($total_transaksi))
                                     <tr>
-                                        <td>Total Semua  </td>
-                                        <td><input type="text" class="form-control" name="total" value=""></td>
-
-                                        <td>Bayar  </td>
-                                        <td><input type="text" class="form-control" name="bayar" value=""></td>
-                                        <td><button class="btn btn-success"><i class="fa fa-shopping-cart"></i> Bayar</button>
-
-                                            <a class="btn btn-danger" href="fungsi/hapus/hapus.php?penjualan=jual">
-                                            <b>RESET</b></a></td></td>
+                                        <td>Total Semua</td>
+                                        <td>
+                                            <input type="text" class="form-control" name="total_transaksi"
+                                                value="Rp {{ number_format($total_transaksi ?? 0, 0, ',', '.') }}" readonly>
+                                        </td>
+                                        <td>Bayar</td>
+                                        <td>
+                                            <input type="number" class="form-control" name="bayar" min="0" required>
+                                        </td>
                                     </tr>
-
-
-                                <tr>
-                                    <td>Kembali</td>
-                                    <td><input type="text" class="form-control" value=""></td>
-                                    <td></td>
-                                    <td>
-                                        <a href="print.php?nm_member=
-                                        &bayar= &kembali=" target="_blank">
-                                        <button class="btn btn-secondary">
-                                            <i class="fa fa-print"></i> Print Untuk Bukti Pembayaran
-                                        </button></a>
-                                    </td>
-                                </tr>
-                            </table>
-                            <br/>
-                            <br/>
+                                    @endif
+                                    <tr>
+                                        <td>
+                                            <input type="submit" class="btn btn-danger" value="Bayar">
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </form>
+                        <div class="d-flex align-items-center gap-3">
+                            @if(isset($kembalian))
+                                <span>Kembali:</span>
+                                <input type="text" class="form-control w-auto" name="kembali" value="{{$kembalian}}" readonly>
+                                <a href="{{route('invoice')}}" class="btn btn-primary">Cetak Nota</a>
+                            @endif
                         </div>
+                        @yield('invoice')
                     </div>
                 </div>
             </div>
@@ -288,20 +304,19 @@
 
 
     <script>
-        function getFormattedDate() {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0'); // Pastikan ini +1
-            const day = String(today.getDate()).padStart(2, '0');
-
-            return `${year}-${month}-${day}`; // Pastikan format ini
+       function updateTanggal() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // Tambah 1 karena Januari = 0
+            const day = String(now.getDate()).padStart(2, '0');
+            document.getElementById("tanggal").textContent = `${year}-${month}-${day}`;
         }
 
-        // Menampilkan tanggal di dalam elemen dengan id "tanggal"
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById("tanggal").textContent = getFormattedDate();
-        });
-    //To select country name
+        // Panggil saat halaman dimuat
+        updateTanggal();
+
+        // Update setiap detik (opsional, jika ingin selalu real-time)
+        setInterval(updateTanggal, 1000);ountry name
     </script>
     <!--   Core JS Files   -->
     <script src="../assets/js/core/popper.min.js"></script>

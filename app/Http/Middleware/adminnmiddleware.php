@@ -30,8 +30,8 @@ class adminnmiddleware
             Auth::logout();
 
         }
-        return redirect()->route('sign-in
-        ')->with('error', 'Admin tidak diizinkan mengakses halaman ini.');
+        return redirect()->route('sign-in');
+
         }
     }
 

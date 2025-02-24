@@ -80,6 +80,27 @@
         <x-app.footer />
     </main>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#tanggal").on("change", function () {
+            let tanggal = $(this).val(); // Ambil tanggal yang dipilih
+
+            $.ajax({
+                url: "{{ route('penjualan.filter') }}", // Route Laravel untuk filter data
+                type: "GET",
+                data: { tanggal: tanggal },
+                success: function (data) {
+                    $("#table-body").html(data); // Update isi tabel tanpa reload
+                },
+                error: function () {
+                    console.error("Gagal mengambil data transaksi.");
+                }
+            });
+        });
+    });
+</script>
+
 </x-app-layout>
 
 <script src="/assets/js/plugins/datatables.js"></script>

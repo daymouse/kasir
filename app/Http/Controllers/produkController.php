@@ -39,6 +39,7 @@ class produkController extends Controller
     }
 
 
+
     public function update(Request $request, $id_barang)
     {
         $validasi = $request->validate([

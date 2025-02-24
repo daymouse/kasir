@@ -12,6 +12,8 @@ use App\Http\Controllers\dashboardController;
 use App\Http\Controllers\kasirController;
 
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -31,17 +33,21 @@ Route::get('/', function () {
 Route::get('/dashboard', [dashboardController::class, 'index'] )->name('dashboard')->middleware('admin');
 
 
-Route::get('/kasir', function () {
-    return view('kasir');
-})->name('kasir')->middleware('auth');
 
-Route::get('/kasir', [kasirController::class, 'cari'] )->name('cari_barang')->middleware('kasir');
 
-Route::get('/kasir', [kasirController::class, 'index'] )->name('barang2')->middleware('kasir');
+Route::get('/kasir', [kasirController::class, 'index'] )->name('cari_barang')->middleware('kasir');
+
+Route::get('/kasir/barang', [kasirController::class, 'caribarang'] )->name('barang2')->middleware('kasir');
 Route::get('/kasir/pelanggan', [kasirController::class, 'cariPelanggan'] )->name('pelanggan')->middleware('kasir');
-Route::post('/kasir/keranjang',[kasirController::class, 'keranjang'] )->name('keranjang')->middleware('kasir');
 Route::post('/tambahkeranjang', [kasirController::class, 'tambahkeranjang'] )->name('add')->middleware('kasir');
+Route::post('/tambahpelanggan', [kasirController::class, 'tambahpelanggan'] )->name('add_pelanggan')->middleware('kasir');
 Route::get('/kasir/add', [kasirController::class, 'viewCart'] )->name('cart')->middleware('kasir');
+Route::post('/bayar', [kasirController::class, 'checkout'])->name('bayar');
+Route::get('/kasir/viewpelanggan', [kasirController::class, 'viewPel'] )->name('vpel')->middleware('kasir');
+Route::get('/invoice', [kasirController::class, 'invoice'])->name('invoice')->middleware('kasir');
+Route::get('/resetkeranjang', [kasirController::class, 'resetkeranjang'])->name('resetkeranjang')->middleware('kasir');
+Route::get('/kasir/hapus/{id}', [kasirController::class, 'hapusItem'])->name('hapusItem')->middleware('kasir');
+
 
 Route::get('/tables', function () {
     return view('tables');
@@ -67,8 +73,9 @@ Route::get('/signup', function () {
     return view('account-pages.signup');
 })->name('signup')->middleware('guest');
 
-Route::get('/dashboard/penjualan', [dashboardController::class, 'index'])->name('penjualan');
-
+Route::get('/dashboard', [dashboardController::class, 'index'])->name('dashboard')->middleware('admin');
+Route::get('/dashboard/penjualan', [dashboardController::class, 'index'])->name('penjualan')->middleware('admin');
+Route::get('/penjualan/filter', [dashboardController::class, 'filter'])->name('penjualan.filter')->middleware('admin');
 
 Route::get('/sign-up', [RegisterController::class, 'create'])
     ->middleware('guest')
@@ -89,6 +96,8 @@ Route::post('/logout', [LoginController::class, 'destroy'])
     ->name('logout');
 
 Route::get('/produk/{id}', [ProdukController::class, 'edit'])->name('editproduk');
+
+
 
 
 Route::get('/add-produk', function(){
