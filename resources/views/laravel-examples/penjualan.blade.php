@@ -84,14 +84,14 @@
 <script>
     $(document).ready(function () {
         $("#tanggal").on("change", function () {
-            let tanggal = $(this).val(); // Ambil tanggal yang dipilih
+            let tanggal = $(this).val();
 
             $.ajax({
-                url: "{{ route('penjualan.filter') }}", // Route Laravel untuk filter data
+                url: "{{ route('penjualan.filter') }}",
                 type: "GET",
                 data: { tanggal: tanggal },
                 success: function (data) {
-                    $("#table-body").html(data); // Update isi tabel tanpa reload
+                    $("#table-body").html(data);
                 },
                 error: function () {
                     console.error("Gagal mengambil data transaksi.");

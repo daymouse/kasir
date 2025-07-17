@@ -13,17 +13,21 @@ class kasirController extends Controller
 {
     public function index(Request $request)
     {
+        $barang = barang::all();
+        $pelanggan = pelanggan::all();
         $cart = session()->get('keranjang', []);
         $total_transaksi = !empty($cart) ? array_sum(array_column($cart, 'total')) : 0;
         $bayar = isset($request->kembalian) ? ($total_transaksi - $request->kembalian) : 0;
 
-        return view('kasir', compact('total_transaksi', 'bayar'));
+        return view('kasir', compact('total_transaksi', 'bayar', 'barang', 'pelanggan'));
     }
 
 
    public function cariPelanggan(Request $request)
    {
     $query = $request->input('cariPelanggan');
+    $barang = barang::all();
+    $pelanggan = pelanggan::all();
 
 
     if ($query) {
@@ -34,13 +38,14 @@ class kasirController extends Controller
     session()->put('pelanggan', $daftar_pelanggan);
 
 
-    return view('kasir', compact('daftar_pelanggan','query'));
+    return view('kasir', compact('daftar_pelanggan','query', 'barang', 'pelanggan'));
    }
 
    public function caribarang(Request $request)
    {
     $query = $request->input('cari');
-
+    $barang = barang::all();
+    $pelanggan = pelanggan::all();
 
     if ($query) {
         $daftar_barang = barang::where('id_barang', 'LIKE', "%{$query}%")->get();
@@ -50,10 +55,12 @@ class kasirController extends Controller
     session()->put('barang', $daftar_barang);
 
 
-    return view('kasir', compact('daftar_barang','query'));
+    return view('kasir', compact('daftar_barang','query', 'barang', 'pelanggan'));
    }
    public function tambahPelanggan(Request $request)
    {
+    $barang = barang::all();
+    $pelanggan = pelanggan::all();
     $pelanggan = session()->get('pelanggan');
     $id_pelanggan = $request->idPelanggan;
     $nama_pelanggan = $request->namaPelanggan;
@@ -69,7 +76,6 @@ class kasirController extends Controller
 
    public function tambahkeranjang(Request $request)
     {
-
         $cart = session()->get('keranjang', []);
 
         $id = $request->id;
@@ -125,6 +131,8 @@ class kasirController extends Controller
 
     public function checkout(Request $request)
     {
+        $barang = barang::all();
+        $pelanggan = pelanggan::all();
         $total_transaksi = (int) str_replace(['Rp', '.', ','], '', $request->total_transaksi);
 
         $request->merge(['total_transaksi' => $total_transaksi]);
@@ -170,7 +178,6 @@ class kasirController extends Controller
 
             DB::commit();
 
-            // Simpan data transaksi ke session
             session([
                 'invoice_data' => [
                     'id_transaksi' => $order->id,
@@ -179,11 +186,12 @@ class kasirController extends Controller
                     'bayar' => $request->bayar,
                     'kembalian' => $kembalian,
                     'items' => $cart,
+                    'nama_pelanggan' => $request->namaPelanggan,
                 ]
             ]);
 
 
-            return view('kasir', compact('kembalian'));// Arahkan ke invoice
+            return view('kasir', compact('kembalian', 'barang', 'pelanggan'));// Arahkan ke invoice
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
@@ -193,9 +201,10 @@ class kasirController extends Controller
 
     public function invoice()
     {
+        $barang = barang::all();
+         $pelanggan = pelanggan::all();
         $invoiceData = session()->get('invoice_data', []);
-
-        return view('invoice', compact('invoiceData'));
+        return view('invoice', compact('invoiceData', 'barang', 'pelanggan'));
     }
 
     public function hapusItem($id)

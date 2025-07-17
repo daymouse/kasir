@@ -89,17 +89,29 @@
                         <h5><i class="fa fa-search"></i> Cari Barang</h5>
                     </div>
                     <div class="card-body d-flex flex-column gap-3">
-                        <form action="{{ route('pelanggan') }}" method="GET" class="d-flex gap-2">
+                        <form id="formCariPelanggan" action="{{ route('pelanggan') }}" method="GET" class="d-flex gap-2">
                             @csrf
-                            <input type="text" class="form-control" name="cariPelanggan" placeholder="Masukan ID Pelanggan [ENTER]">
+                            <input id="cariPelanggan" list="pelangganList" name="cariPelanggan" class="form-control" placeholder="Pilih atau Ketik Pelanggan">
+                            <datalist id="pelangganList">
+                                @foreach($pelanggan as $p)
+                                    <option value="{{ $p->id_pelanggan }}">{{ $p->nama }}</option>
+                                @endforeach
+                                <option value="Pelanggan Tidak Ada">Tambah Pelanggan</option>
+                            </datalist>
                             <button type="submit" class="btn btn-primary">Cari</button>
                         </form>
-                        <form action="{{ route('barang2') }}" method="GET" class="d-flex gap-2">
+                        <form id="formCariBarang" action="{{ route('barang2') }}" method="GET" class="d-flex gap-2">
                             @csrf
-                            <input type="text" class="form-control" name="cari" placeholder="Masukan Kode/Nama Barang [ENTER]">
+                            <input list="barangList" name="cari" class="form-control" placeholder="Pilih atau Ketik Barang" autocomplete="off">
+                            <datalist id="barangList" autocomplete="off">
+                                @foreach($barang as $k)
+                                    <option value="{{ $k->id_barang }}">{{ $k->namabarang }}</option>
+                                @endforeach
+                            </datalist>
                             <button type="submit" class="btn btn-primary">Cari</button>
                         </form>
                     </div>
+
                 </div>
             </div>
 
@@ -119,7 +131,7 @@
                                         <th class="text-left">ID</th>
                                         <th class="text-center">Produk</th>
                                         <th class="text-center">Harga</th>
-                                        <th class="text-center">Stok</th>
+                                        <th class="text-center">jumlah</th>
                                         <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
@@ -200,7 +212,7 @@
                                                 <td class="col-sm-4">
                                                     <b>Pelanggan dengan ID</b><input type="text" name="id_pelanggan" value="{{ $orang['id_pelanggan'] }}" class="form-control bg-transparent border-0" readonly>
                                                 </td>
-                                                <td>{{ $orang['nama'] }}</td>
+                                                <td><input type="text" name="namaPelanggan" value="{{ $orang['nama'] }}" class="form-control bg-transparent border-0" readonly></td>
                                             </tr>
                                             @endforeach
                                         @else
@@ -280,12 +292,13 @@
                                             <input type="number" class="form-control" name="bayar" min="0" required>
                                         </td>
                                     </tr>
-                                    @endif
                                     <tr>
                                         <td>
                                             <input type="submit" class="btn btn-danger" value="Bayar">
                                         </td>
                                     </tr>
+                                    @endif
+
                                 </table>
                             </div>
                         </form>
@@ -293,7 +306,8 @@
                             @if(isset($kembalian))
                                 <span>Kembali:</span>
                                 <input type="text" class="form-control w-auto" name="kembali" value="{{$kembalian}}" readonly>
-                                <a href="{{route('invoice')}}" class="btn btn-primary">Cetak Nota</a>
+                                <a href="{{route('invoice')}}" class="btn btn-primary" >Cetak Nota</a>
+
                             @endif
                         </div>
                         @yield('invoice')
@@ -317,6 +331,48 @@
 
         // Update setiap detik (opsional, jika ingin selalu real-time)
         setInterval(updateTanggal, 1000);ountry name
+
+    </script>
+    <script>
+        function visible() {
+            var visibility = document.getElementById("profileVisibility");
+            var switchButton = document.getElementById("flexSwitchCheckDefault23");
+
+            if (switchButton.checked) {
+                visibility.innerHTML = "Switch to invisible";
+            } else {
+                visibility.innerHTML = "Switch to visible";
+            }
+        }
+    </script>
+    <script>
+        document.getElementById("cariPelanggan").addEventListener("input", function() {
+            if (this.value === "Pelanggan Tidak Ada") {
+                window.location.href = "{{ route('add_pel') }}"; // Redirect otomatis
+            }
+        });
+    </script>
+    <!--   Core JS Files   -->
+    <script src="../assets/js/core/popper.min.js"></script>
+    <script src="../assets/js/core/bootstrap.min.js"></script>
+    <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
+    <script src="../assets/js/plugins/chartjs.min.js"></script>
+    <script src="../assets/js/plugins/swiper-bundle.min.js" type="text/javascript"></script>
+    <script>
+        if (document.getElementsByClassName('mySwiper')) {
+            var swiper = new Swiper(".mySwiper", {
+                effect: "cards",
+                grabCursor: true,
+                initialSlide: 1,
+                navigation: {
+                    nextEl: '.swiper-button-next',
+   <script>
+        document.getElementById("cariPelanggan").addEventListener("input", function() {
+            if (this.value === "Pelanggan Tidak Ada") {
+                window.location.href = "{{ route('add_pel') }}"; // Redirect otomatis
+            }
+        });
     </script>
     <!--   Core JS Files   -->
     <script src="../assets/js/core/popper.min.js"></script>

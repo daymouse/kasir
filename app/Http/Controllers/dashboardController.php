@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\penjualan;
 use App\Models\detail_penjualan;
 use Illuminate\Support\Facades\DB;
+use Mpdf\Mpdf;
+use Illuminate\Support\Facades\View;
 
 class dashboardController extends Controller
 {
@@ -21,6 +23,8 @@ class dashboardController extends Controller
                 'penjualan.tgl_transaksi',
                 'penjualan.total_harga'
             )
+            ->orderBy('penjualan.tgl_transaksi', 'desc')
+            ->limit(10)
             ->get();
 
             $totalhrgbarang = DB::table('detail_penjualan')
@@ -52,6 +56,9 @@ class dashboardController extends Controller
     }
     public function filter(Request $request)
     {
+        $tgl_awal = $request->input('tgl_awal');
+         $tgl_akhir = $request->input('tgl_akhir');
+
         $query = DB::table('penjualan')
             ->join('detail_penjualan', 'penjualan.id_transaksi', '=', 'detail_penjualan.id_transaksi')
             ->select(
@@ -63,18 +70,73 @@ class dashboardController extends Controller
                 'penjualan.total_harga'
             );
 
-
-        if ($request->filled('tgl_awal') && $request->filled('tgl_akhir')) {
-            $query->whereBetween('penjualan.tgl_transaksi', [$request->tgl_awal, $request->tgl_akhir]);
+        if (!empty($tgl_awal) && !empty($tgl_akhir)) {
+            $query->whereBetween('penjualan.tgl_transaksi', [$tgl_awal, $tgl_akhir]);
         }
 
-        $results = $query->get();
+        $results = $query->orderBy('penjualan.tgl_transaksi', 'desc')->get();
 
-        return view('dashboard', compact('results'));
+        return response()->json($results);
+    }
+
+
+    public function print_laporan(Request $request)
+    {
+        $tgl_awal = $request->input('tgl_awal');
+         $tgl_akhir = $request->input('tgl_akhir');
+
+        $query = DB::table('penjualan')
+            ->join('detail_penjualan', 'penjualan.id_transaksi', '=', 'detail_penjualan.id_transaksi')
+            ->select(
+                'penjualan.id_transaksi',
+                'detail_penjualan.id_barang',
+                'detail_penjualan.jml_barang',
+                'detail_penjualan.hrg_satuan',
+                'penjualan.tgl_transaksi',
+                'penjualan.total_harga'
+            );
+
+        if (!empty($tgl_awal) && !empty($tgl_akhir)) {
+            $query->whereBetween('penjualan.tgl_transaksi', [$tgl_awal, $tgl_akhir]);
+        }
+
+        $results = $query->orderBy('penjualan.tgl_transaksi', 'desc')->get();
+
+        $html = View::make('laporan_pdf', compact('results'))->render();
+
+        $mpdf = new Mpdf();
+        $mpdf->WriteHTML($html);
+        $mpdf->Output();
+
+        return response()->json(['message' => 'PDF berhasil dibuat']);
     }
 
     public function penjualan()
     {
         return view('laravel-examples.penjualan');
     }
+
+    public function getPenjualan(Request $request)
+    {
+
+        $limit = $request->has('all') && $request->all == "true" ? null : 10; // Jika 'all' true, ambil semua data
+
+        $results = DB::table('penjualan')
+            ->join('detail_penjualan', 'penjualan.id_transaksi', '=', 'detail_penjualan.id_transaksi')
+            ->select(
+                'penjualan.id_transaksi',
+                'detail_penjualan.id_barang',
+                'detail_penjualan.jml_barang',
+                'detail_penjualan.hrg_satuan',
+                'penjualan.tgl_transaksi',
+                'penjualan.total_harga'
+            )
+            ->orderBy('penjualan.tgl_transaksi', 'desc')
+            ->when($limit, fn($query) => $query->limit($limit))
+            ->get();
+
+        return response()->json($results);
+
+    }
+
 }

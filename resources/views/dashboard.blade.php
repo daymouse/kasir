@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <title>Document</title>
 </head>
@@ -113,7 +114,7 @@
                 </div>
             </div>
             <canvas class="card shadow-xs border px-2" id="penjualanChart"></canvas>
-            <div class="row">
+            <div class="row" id="table-container">
                 <div class="col-lg-12">
                     <div class="card shadow-xs border">
                         <div class="card-header pb-0">
@@ -129,14 +130,15 @@
             <div class="row">
                 <div class="position-relative overflow-hidden">
                     <div class=" mt-4 mb-2">
-                        <form action="{{ route('penjualan.filter') }}" method="GET">
+                        <form id="filterForm">
                             <label for="tgl_awal">Tanggal Awal:</label>
                             <input type="date" name="tgl_awal" id="tgl_awal" required>
 
                             <label for="tgl_akhir">Tanggal Akhir:</label>
                             <input type="date" name="tgl_akhir" id="tgl_akhir" required>
 
-                            <button type="submit">Filter</button>
+                            <button  type="submit">Filter</button>
+                            <button id="printButton" type="button">Print PDF</button>
                         </form>
 
                         <div class="card shadow-xs border">
@@ -175,62 +177,15 @@
                                     </tbody>
 
                                 </table>
+                                <div class="text-center mt-3">
+                                    <button id="show-toggle" class="btn btn-primary mt-3">Show More</button>
+                                    <a href="#table-container"><button id="hide-toggle" class="btn btn-primary mt-3 ">Lebih Sedikit</button></a>
+                                </div>
                             </div>
                         </div>
-
-
                     </div>
-
                 </div>
             </div>
-            <div class="row my-4">
-                <div class="col-lg-4 col-md-6 mb-md-0 mb-4">
-                    <div class="card shadow-xs border h-100">
-                        <div class="card-header pb-0">
-                            <h6 class="font-weight-semibold text-lg mb-0">Balances over time</h6>
-                            <p class="text-sm">Here you have details about the balance.</p>
-                            <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                                <input type="radio" class="btn-check" name="btnradio" id="btnradio1"
-                                    autocomplete="off" checked>
-                                <label class="btn btn-white px-3 mb-0" for="btnradio1">12 months</label>
-                                <input type="radio" class="btn-check" name="btnradio" id="btnradio2"
-                                    autocomplete="off">
-                                <label class="btn btn-white px-3 mb-0" for="btnradio2">30 days</label>
-                                <input type="radio" class="btn-check" name="btnradio" id="btnradio3"
-                                    autocomplete="off">
-                                <label class="btn btn-white px-3 mb-0" for="btnradio3">7 days</label>
-                            </div>
-                        </div>
-                        <div class="card-body py-3">
-                            <div class="chart mb-2">
-                                <canvas id="chart-bars" class="chart-canvas" height="240"></canvas>
-                            </div>
-                            <button class="btn btn-white mb-0 ms-auto">View report</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-8 col-md-6">
-                    <div class="card shadow-xs border">
-                        <div class="card-header border-bottom pb-0">
-                            <div class="d-sm-flex align-items-center mb-3">
-                                <div>
-                                    <h6 class="font-weight-semibold text-lg mb-0">Recent transactions</h6>
-                                    <p class="text-sm mb-sm-0 mb-2">These are details about the last transactions</p>
-                                </div>
-                                <div class="input-group w-sm-25 ms-auto">
-                                    <span class="input-group-text text-body">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px"
-                                            fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                            stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z">
-                                            </path>
-                                        </svg>
-                                    </span>
-                                    <input type="text" class="form-control" placeholder="Search">
-                                </div>
-
-                            </div>
                             <div class="pb-3 d-sm-flex align-items-center">
                                 <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
                                     <input type="radio" class="btn-check" name="btnradiotable" id="btnradiotable1"
@@ -239,32 +194,7 @@
                                         autocomplete="off">
                                     <input type="radio" class="btn-check" name="btnradiotable" id="btnradiotable3"
                                         autocomplete="off">
-
                                 </div>
-
-                            </div>
-                        </div>
-                        <div class="card-body px-0 py-0">
-                            <div class="table-responsive p-0">
-                                <table class="table align-items-center justify-content-center mb-0">
-                                    <thead class="bg-gray-100">
-                                        <tr>
-                                            <th class="text-secondary text-xs font-weight-semibold opacity-7">
-                                                Transaction</th>
-                                            <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">
-                                                Amount</th>
-                                            <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">Date
-                                            </th>
-                                            <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">
-                                                Account</th>
-                                            <th
-                                                class="text-center text-secondary text-xs font-weight-semibold opacity-7">
-                                            </th>
-                                        </tr>
-                                    </thead>
-
-
-                                </table>
                             </div>
                         </div>
                     </div>
@@ -277,15 +207,16 @@
 
 </x-app-layout>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     var ctx = document.getElementById('penjualanChart').getContext('2d');
     var penjualanChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: {!! json_encode($labels) !!}, // Tanggal
+            labels: {!! json_encode($labels) !!},
             datasets: [{
                 label: 'Total Penjualan',
-                data: {!! json_encode($data) !!}, // Total Harga
+                data: {!! json_encode($data) !!},
                 borderColor: 'blue',
                 borderWidth: 2,
                 fill: false
@@ -300,5 +231,175 @@
         }
     });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    let hideToggle = document.getElementById("hide-toggle");
+
+
+    if (!localStorage.getItem("showMoreActive")) {
+        hideToggle.style.display = "none";
+    }
+
+    document.getElementById("show-toggle").addEventListener("click", function () {
+        localStorage.setItem("showMoreActive", "true");
+        hideToggle.style.display = "inline-block";
+        this.style.display = "none";
+    });
+
+    hideToggle.addEventListener("click", function () {
+        localStorage.removeItem("showMoreActive");
+    });
+});
+
+</script>
+<script>
+
+$(document).ready(function () {
+    let showAll = false;
+
+    $("#show-toggle").click(function () {
+
+        $.ajax({
+            url: "{{ route('get.penjualan') }}",
+            type: "GET",
+            data: { all: !showAll },
+            success: function (response) {
+                let rows = "";
+                response.forEach(function (item) {
+                    rows += `
+                        <tr>
+                            <td>${item.id_transaksi}</td>
+                            <td>${item.id_barang}</td>
+                            <td>${item.jml_barang}</td>
+                            <td>${item.hrg_satuan}</td>
+                            <td>${item.tgl_transaksi}</td>
+                            <td>
+                                <span class="badge badge-sm border border-success text-success bg-success">
+                                    ${item.total_harga}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                $("#table-body").html(rows);
+                $("#table-container").show();
+
+                showAll = true;
+                $("#show-toggle").hide();
+                $("#hide-toggle").show();
+            },
+            error: function () {
+                alert("Gagal mengambil data");
+            }
+        });
+    });
+
+    $("#hide-toggle").click(function () {
+        $("html, body").animate({
+            scrollTop: $("#table-container").offset().top
+        }, 500);
+
+        $.ajax({
+            url: "{{ route('get.penjualan') }}",
+            type: "GET",
+            data: { all: false },
+            success: function (response) {
+                let rows = "";
+                response.forEach(function (item) {
+                    rows += `
+                        <tr>
+                            <td>${item.id_transaksi}</td>
+                            <td>${item.id_barang}</td>
+                            <td>${item.jml_barang}</td>
+                            <td>${item.hrg_satuan}</td>
+                            <td>${item.tgl_transaksi}</td>
+                            <td>
+                                <span class="badge badge-sm border border-success text-success bg-success">
+                                    ${item.total_harga}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                $("#table-body").html(rows);
+                showAll = false;
+
+                $("#hide-toggle").hide();
+                $("#show-toggle").show();
+            },
+            error: function () {
+                alert("Gagal mengambil data");
+            }
+        });
+    });
+});
+
+</script>
+<script>
+   document.getElementById("filterForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let tgl_awal = document.getElementById("tgl_awal").value;
+        let tgl_akhir = document.getElementById("tgl_akhir").value;
+        console.log("Filter button clicked");
+
+        fetch("{{ route('penjualan.filter') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+            },
+            body: JSON.stringify({ tgl_awal: tgl_awal, tgl_akhir: tgl_akhir })
+        })
+        .then(response => response.json())
+        .then(data => {
+            let rows = "";
+            data.forEach(item => {
+                rows += `<tr>
+                    <td>${item.id_transaksi}</td>
+                    <td>${item.id_barang}</td>
+                    <td>${item.jml_barang}</td>
+                    <td>${item.hrg_satuan}</td>
+                    <td>${item.tgl_transaksi}</td>
+                    <td>${item.total_harga}</td>
+                </tr>`;
+            });
+            document.querySelector("#table-body").innerHTML = rows;
+        })
+        .catch(error => console.error("Error:", error));
+    });
+
+</script>
+<script>
+  document.getElementById("printButton").addEventListener("click", function() {
+    let tgl_awal = document.getElementById("tgl_awal").value;
+    let tgl_akhir = document.getElementById("tgl_akhir").value;
+
+    fetch("{{ route('print_laporan') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+        },
+        body: JSON.stringify({ tgl_awal: tgl_awal, tgl_akhir: tgl_akhir })
+    })
+    .then(response => response.blob())  // Ambil PDF sebagai blob
+    .then(blob => {
+        let url = window.URL.createObjectURL(blob);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = "Laporan.pdf";
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    })
+    .catch(error => console.error("Error:", error));
+});
+
+</script>
+
+
 </body>
 </html>

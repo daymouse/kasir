@@ -4,7 +4,7 @@
             aria-hidden="true" id="iconSidenav"></i>
         <a class="navbar-brand d-flex align-items-center m-0"
             href=" https://demos.creative-tim.com/corporate-ui-dashboard/pages/dashboard.html " target="_blank">
-            <span class="font-weight-bold text-lg">Corporate UI</span>
+            <span class="font-weight-bold text-lg">DToko</span>
         </a>
     </div>
     <div class="collapse navbar-collapse px-4  w-auto h-auto" id="sidenav-collapse-main">
@@ -77,12 +77,6 @@
                 </div>
             </li>
             <li class="nav-item border-start my-0 pt-2">
-                <a class="nav-link position-relative ms-0 ps-2 py-2 {{ is_current_route('users.profile') ? 'active' : '' }}"
-                    href="{{ route('users.profile') }}">
-                    <span class="nav-link-text ms-1">User Profile</span>
-                </a>
-            </li>
-            <li class="nav-item border-start my-0 pt-2">
                 <a class="nav-link position-relative ms-0 ps-2 py-2 {{ is_current_route('users-management') ? 'active' : '' }}"
                     href="{{ route('users-management') }}">
                     <span class="nav-link-text ms-1">User Management</span>
@@ -92,12 +86,6 @@
                 <a class="nav-link position-relative ms-0 ps-2 py-2 {{ is_current_route('produk-management') ? 'active' : '' }}"
                     href="{{ route('produk-management') }}">
                     <span class="nav-link-text ms-1">Produk Management</span>
-                </a>
-            </li>
-            <li class="nav-item border-start my-0 pt-2">
-                <a class="nav-link position-relative ms-0 ps-2 py-2 {{ is_current_route('penjualan-management') ? 'active' : '' }}"
-                    href="{{ route('penjualan') }}">
-                    <span class="nav-link-text ms-1">Penjualan Management</span>
                 </a>
             </li>
 </aside>

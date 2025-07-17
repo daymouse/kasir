@@ -10,4 +10,6 @@ class pelanggan extends Model
     use HasFactory;
 
     protected $table = 'pelanggan';
+    public $timestamps = false;
+    protected $fillable = ['nama', 'gender'];
 }

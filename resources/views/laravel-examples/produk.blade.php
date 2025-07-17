@@ -20,12 +20,11 @@
                                 <div class="col-6">
                                     <h5 class="">produk</h5>
                                     <p class="mb-0 text-sm">
-                                        Here you can manage users.
-                                    </p>
+                                        Produk yang kami jual                                  </p>
                                 </div>
                                 <div class="col-6 text-end">
                                     <a href="{{ route('addproduk') }}" class="btn btn-dark btn-primary">
-                                         Add Member
+                                         Tambah Produk
                                     </a>
                                 </div>
                             </div>

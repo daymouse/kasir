@@ -1,14 +1,14 @@
+<head>
+    <title>Users Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
 <x-app-layout>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
         <x-app.navbar />
         <div class="px-5 py-4 container-fluid">
             <div class="mt-4 row">
                 <div class="col-12">
-                    <div class="alert alert-dark text-sm" role="alert">
-                        <strong>Add, Edit, Delete features are not functional!</strong> This is a
-                        <strong>PRO</strong> feature ! Click <a href="#" target="_blank" class="text-bold">here</a>
-                        to see the <strong>PRO</strong> product!
-                    </div>
+
                     <div class="card">
                         <div class="pb-0 card-header">
                             <div class="row">
@@ -19,8 +19,8 @@
                                     </p>
                                 </div>
                                 <div class="col-6 text-end">
-                                    <a href="#" class="btn btn-dark btn-primary">
-                                        <i class="fas fa-user-plus me-2"></i> Add Member
+                                    <a href="{{route('addUser')}}" class="btn btn-dark btn-primary">
+                                        <i class="fas fa-user-plus me-2"></i> tambah user
                                     </a>
                                 </div>
                             </div>
@@ -72,8 +72,8 @@
                                         <td class="text-center align-middle bg-transparent border-bottom">{{$user->role}}</td>
                                         <td class="text-center align-middle bg-transparent border-bottom">{{$user->created_at}}</td>
                                         <td class="text-center align-middle bg-transparent border-bottom">
-                                            <a href="#"><i class="fas fa-user-edit" aria-hidden="true"></i></a>
-                                            <a href="#"><i class="fas fa-trash" aria-hidden="true"></i></a>
+                                            <a href="{{route('edituser', $user->id)}}"><i class="bi bi-pencil-square p-2"></i></i></a>
+                                            <a href="{{route('deleteuser', $user->id)}}"><i class="bi bi-trash3 p-2"></i></a>
                                         </td>
                                     </tr>
                                     @endforeach

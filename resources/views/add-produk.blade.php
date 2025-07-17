@@ -17,7 +17,7 @@
                     <div class="card">
                         <div class="card-header pb-0">
                             <h5 class="">Add Produk</h5>
-                            <p class="text-sm mb-0">Fill in the details to add a new product.</p>
+                            <p class="text-sm mb-0">tambah produk.</p>
                         </div>
                         <div class="card-body">
                             <form action="{{route('add-produk')}}" method="POST">

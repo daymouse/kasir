@@ -9,7 +9,10 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\produkController;
 use App\Http\Controllers\dashboardController;
+use App\Http\Controllers\dashkasirController;
 use App\Http\Controllers\kasirController;
+use App\Http\Controllers\tableController;
+use App\Http\Controllers\pelangganController;
 
 
 
@@ -30,10 +33,16 @@ Route::get('/', function () {
     return view('/dashboard');
 })->middleware('admin');
 
-Route::get('/dashboard', [dashboardController::class, 'index'] )->name('dashboard')->middleware('admin');
+Route::get('/addUser', [UserController::class, 'addUser'])
+    ->middleware('admin')
+    ->name('addUser');
+Route::post('/adduserr', [UserController::class, 'create'])->name('tambahuser')->middleware('admin');
+Route::get('/edituser/{id}', [UserController::class, 'edit'])->name('edituser')->middleware('admin');
+Route::put('/updateuser/{id}', [UserController::class, 'update'])->name('updateuser')->middleware('admin');
+Route::get('/delete/{id}', [UserController::class, 'delete'])->name('deleteuser')->middleware('admin');
 
-
-
+Route::get('/add_pelanggan', [pelangganController::class, 'create'])->name('add_pel')->middleware('kasir');
+Route::post('/add_pelanggan', [pelangganController::class, 'index'])->name('aksi_pel')->middleware('kasir');
 
 Route::get('/kasir', [kasirController::class, 'index'] )->name('cari_barang')->middleware('kasir');
 
@@ -48,10 +57,8 @@ Route::get('/invoice', [kasirController::class, 'invoice'])->name('invoice')->mi
 Route::get('/resetkeranjang', [kasirController::class, 'resetkeranjang'])->name('resetkeranjang')->middleware('kasir');
 Route::get('/kasir/hapus/{id}', [kasirController::class, 'hapusItem'])->name('hapusItem')->middleware('kasir');
 
+Route::get('/tables', [tableController::class, 'topCustomers'] )->name('tables')->middleware('admin');
 
-Route::get('/tables', function () {
-    return view('tables');
-})->name('tables')->middleware('admin');
 
 Route::get('/wallet', function () {
     return view('wallet');
@@ -73,9 +80,18 @@ Route::get('/signup', function () {
     return view('account-pages.signup');
 })->name('signup')->middleware('guest');
 
+Route::get('/dashboard', [dashboardController::class, 'index'] )->name('dashboard')->middleware('admin');
+Route::get('/dashboard/penjualan/show', [dashboardController::class, 'getPenjualan'])->name('get.penjualan')->middleware('admin');
 Route::get('/dashboard', [dashboardController::class, 'index'])->name('dashboard')->middleware('admin');
 Route::get('/dashboard/penjualan', [dashboardController::class, 'index'])->name('penjualan')->middleware('admin');
-Route::get('/penjualan/filter', [dashboardController::class, 'filter'])->name('penjualan.filter')->middleware('admin');
+Route::post('/filter', [dashboardController::class, 'filter'])->name('penjualan.filter')->middleware('admin');
+Route::post('/dashboard/view/pdf', [dashboardController::class, 'print_laporan'])->name('print_laporan')->middleware('admin');
+
+Route::get('/dashkasir', [dashkasirController::class, 'index'])->name('dashkasir')->middleware('kasir');
+Route::get('/dashkasir/penjualan/show',[dashkasirController::class, 'getPenjualan'])->name('kasget.penjualan')->middleware('kasir');
+Route::get('/dashkasir', [dashkasirController::class, 'index'])->name('dashkasir')->middleware('kasir');
+Route::get('/dashkasir/penjualan', [dashkasirController::class, 'index'])->name('kaspenjualan')->middleware('kasir');
+Route::get('/dashkasir/filter', [dashkasirController::class, 'filter'])->name('kaspenjualan.filter')->middleware('kasir');
 
 Route::get('/sign-up', [RegisterController::class, 'create'])
     ->middleware('guest')
@@ -125,7 +141,7 @@ Route::get('/reset-password/{token}', [ResetPasswordController::class, 'create']
 Route::post('/reset-password', [ResetPasswordController::class, 'store'])
     ->middleware('guest');
 
-Route::get('/laravel-examples/user-profile', [ProfileController::class, 'index'])->name('users.profile')->middleware('auth');
-Route::put('/laravel-examples/user-profile/update', [ProfileController::class, 'update'])->name('users.update')->middleware('auth');
-Route::get('/laravel-examples/users-management', [UserController::class, 'index'])->name('users-management')->middleware('auth');
-Route::get('/laravel-examples/produk', [produkController::class, 'index'])->name('produk-management')->middleware('auth');
+Route::get('/laravel-examples/user-profile', [ProfileController::class, 'index'])->name('users.profile')->middleware('admin');
+Route::put('/laravel-examples/user-profile/update', [ProfileController::class, 'update'])->name('users.update')->middleware('admin');;
+Route::get('/laravel-examples/users-management', [UserController::class, 'index'])->name('users-management')->middleware('admin');;
+Route::get('/laravel-examples/produk', [produkController::class, 'index'])->name('produk-management')->middleware('admin');;
