@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\barang;
-
+use App\Models\Barang;
+use Illuminate\Support\Facades\Storage;
 
 class produkController extends Controller
 {
     public function index()
     {
-        $barangs = barang::all();
+        $barangs = Barang::all();
         return view('laravel-examples.produk', compact('barangs'));
     }
 
@@ -26,19 +26,20 @@ class produkController extends Controller
             'namabarang' => 'required|string|max:40',
             'harga_barang' => 'required|numeric',
             'stok' => 'required|numeric',
+            'foto_barang' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // max 2MB
         ]);
 
-        barang::create([
-            'namabarang' => $validasi['namabarang'],
-            'harga_barang' => $validasi['harga_barang'],
-            'stok' => $validasi['stok'],
-        ]);
+        // Upload file jika ada
+        if ($request->hasFile('foto_barang')) {
+            $file = $request->file('foto_barang');
+            $path = $file->store('foto_barang', 'public'); // simpan di storage/app/public/foto_barang
+            $validasi['foto_barang'] = $path;
+        }
 
-        return redirect()->route('produk-management');
+        Barang::create($validasi);
 
+        return redirect()->route('produk-management')->with('success', 'Produk berhasil ditambahkan.');
     }
-
-
 
     public function update(Request $request, $id_barang)
     {
@@ -46,21 +47,39 @@ class produkController extends Controller
             'namabarang' => 'required|string|max:40',
             'harga_barang' => 'required|numeric',
             'stok' => 'required|numeric',
+            'foto_barang' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $barang = barang::findOrFail($id_barang);
+        $barang = Barang::findOrFail($id_barang);
+
+        // Jika ada file baru, hapus file lama dan upload baru
+        if ($request->hasFile('foto_barang')) {
+            // Hapus foto lama jika ada
+            if ($barang->foto_barang && Storage::disk('public')->exists($barang->foto_barang)) {
+                Storage::disk('public')->delete($barang->foto_barang);
+            }
+
+            $file = $request->file('foto_barang');
+            $path = $file->store('foto_barang', 'public');
+            $validasi['foto_barang'] = $path;
+        }
 
         $barang->update($validasi);
 
-        return redirect()->route('produk-management');
+        return redirect()->route('produk-management')->with('success', 'Produk berhasil diperbarui.');
     }
 
     public function delete($id_barang)
     {
-        $barang = barang::find($id_barang);
+        $barang = Barang::findOrFail($id_barang);
+
+        // Hapus gambar jika ada
+        if ($barang->foto_barang && Storage::disk('public')->exists($barang->foto_barang)) {
+            Storage::disk('public')->delete($barang->foto_barang);
+        }
+
         $barang->delete();
 
-        return redirect()->route('produk-management');
+        return redirect()->route('produk-management')->with('success', 'Produk berhasil dihapus.');
     }
-
 }

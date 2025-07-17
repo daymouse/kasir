@@ -3,98 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Daftar Produk</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <title>Document</title>
 </head>
 <body>
 <x-app-layout>
-    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
         <x-app.navbar />
-        <div class="px-5 py-4 container-fluid">
-            <div class="mt-4 row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="pb-0 card-header">
-                            <div class="row">
-                                <div class="col-6">
-                                    <h5 class="">produk</h5>
-                                    <p class="mb-0 text-sm">
-                                        Produk yang kami jual                                  </p>
+
+        <div class="container-fluid px-5 py-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="mb-0">Produk</h4>
+                    <small class="text-muted">Produk yang kami jual</small>
+                </div>
+                <a href="{{ route('addproduk') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i> Tambah Produk
+                </a>
+            </div>
+
+            <div class="row">
+                @forelse ($barangs as $barang)
+                    <div class="col-md-2 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            @if($barang->foto_barang)
+                                <img src="{{ asset('storage/' . $barang->foto_barang) }}" class="card-img-top" alt="Gambar Produk" style="height: 220px; object-fit: cover;">
+                            @else
+                                <img src="https://via.placeholder.com/400x220?text=No+Image" class="card-img-top" alt="Tidak ada gambar">
+                            @endif
+
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div>
+                                    <h5 class="card-title">{{ $barang->namabarang }}</h5>
+                                    <p class="card-text text-muted mb-1">Harga: <strong>Rp {{ number_format($barang->harga_barang, 0, ',', '.') }}</strong></p>
+                                    <p class="card-text text-muted">Stok:
+                                        <span class="badge bg-success">{{ $barang->stok }}</span>
+                                    </p>
                                 </div>
-                                <div class="col-6 text-end">
-                                    <a href="{{ route('addproduk') }}" class="btn btn-dark btn-primary">
-                                         Tambah Produk
+                                <div class="mt-3">
+                                    <a href="{{ route('editproduk', $barang->id_barang) }}" class="btn btn-sm btn-warning me-2">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </a>
+                                    <a href="{{ route('delate-produk', $barang->id_barang) }}" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus produk ini?')">
+                                        <i class="bi bi-trash3"></i> Hapus
                                     </a>
                                 </div>
                             </div>
                         </div>
-                        <div class="table-responsive">
-                            <table class="table text-secondary text-center">
-                                <thead>
-                                    <tr>
-                                        <th
-                                            class="text-left text-uppercase font-weight-bold bg-transparent border-bottom text-secondary">
-                                            ID</th>
-                                        <th
-                                            class="text-center text-uppercase font-weight-bold bg-transparent border-bottom text-secondary">
-                                            Produk</th>
-                                        <th
-                                            class="text-center text-uppercase font-weight-bold bg-transparent border-bottom text-secondary">
-                                            Harga</th>
-                                        <th
-                                            class="text-center text-uppercase font-weight-bold bg-transparent border-bottom text-secondary">
-                                            Stok</th>
-                                        <th
-                                            class="text-center text-uppercase font-weight-bold bg-transparent border-bottom text-secondary">
-                                            Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($barangs as $barang )
-                                    <tr>
-                                        <td class="align-middle bg-transparent border-bottom">{{$barang ->id_barang}}</td>
-
-
-                                        <td class="align-middle bg-transparent border-bottom">{{$barang ->namabarang}}</td>
-                                        <td class="text-center align-middle bg-transparent border-bottom">{{$barang ->harga_barang}}</td>
-                                        <td class="text-center align-middle bg-transparent border-bottom">
-                                            <span class="badge badge-sm border border-success text-success bg-success">{{$barang ->stok}}</span>
-                                        </td>
-                                        <td class="text-center align-middle bg-transparent border-bottom">
-                                            <a href="{{ route('editproduk', $barang->id_barang) }}"><i class="bi bi-pencil-square p-2"></i></i></a>
-                                            <a href="{{ route('delate-produk', $barang->id_barang)}}"><i class="bi bi-trash3 p-2"></i></a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-
-                        </div>
                     </div>
-                </div>
-
-
-
-
+                @empty
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">Belum ada produk yang tersedia.</div>
+                    </div>
+                @endforelse
             </div>
         </div>
+
         <x-app.footer />
     </main>
-
 </x-app-layout>
 
-<script src="/assets/js/plugins/datatables.js"></script>
-<script>
-    const dataTableBasic = new simpleDatatables.DataTable("#datatable-search", {
-        searchable: true,
-        fixedHeight: true,
-        columns: [{
-            select: [2, 6],
-            sortable: false
-        }]
-    });
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

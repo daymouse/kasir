@@ -48,7 +48,9 @@
         <meta property="product:brand" content="Creative Tim">
         <meta property="product:category" content="Admin &amp; Dashboards">
         <meta name="data-turbolinks-track" content="false">
+
     @endif
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
     <link rel="icon" type="image/png" href="../assets/img/favicon.png">
     <title>
@@ -69,6 +71,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        #keranjangList .form-control-sm {
+        max-width: 70px;
+    }
+    </style>
 
 </head>
 
@@ -76,283 +86,449 @@
     <x-app.sidebar_kasir :name="'Kasir'" />
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg p-4 ">
         <x-app.navbar />
-
-        <h4>Keranjang Penjualan</h4>
-        <br>
-
-
+    <div class="container-fluid p-4">
         <div class="row">
-            <!-- Sidebar Pencarian -->
-            <div class="col-md-4">
-                <div class="card card-primary mb-3">
-                    <div class="card-header bg-primary text-white">
-                        <h5><i class="fa fa-search"></i> Cari Barang</h5>
-                    </div>
-                    <div class="card-body d-flex flex-column gap-3">
-                        <form id="formCariPelanggan" action="{{ route('pelanggan') }}" method="GET" class="d-flex gap-2">
-                            @csrf
-                            <input id="cariPelanggan" list="pelangganList" name="cariPelanggan" class="form-control" placeholder="Pilih atau Ketik Pelanggan">
-                            <datalist id="pelangganList">
-                                @foreach($pelanggan as $p)
-                                    <option value="{{ $p->id_pelanggan }}">{{ $p->nama }}</option>
-                                @endforeach
-                                <option value="Pelanggan Tidak Ada">Tambah Pelanggan</option>
-                            </datalist>
-                            <button type="submit" class="btn btn-primary">Cari</button>
-                        </form>
-                        <form id="formCariBarang" action="{{ route('barang2') }}" method="GET" class="d-flex gap-2">
-                            @csrf
-                            <input list="barangList" name="cari" class="form-control" placeholder="Pilih atau Ketik Barang" autocomplete="off">
-                            <datalist id="barangList" autocomplete="off">
-                                @foreach($barang as $k)
-                                    <option value="{{ $k->id_barang }}">{{ $k->namabarang }}</option>
-                                @endforeach
-                            </datalist>
-                            <button type="submit" class="btn btn-primary">Cari</button>
-                        </form>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Daftar Barang -->
+            <!-- Kolom Kiri: Daftar Produk -->
             <div class="col-md-8">
-                <div class="card card-primary">
-                    <div class="card-header bg-primary text-white d-flex align-items-center" style="height: 56px;">
-                        <h5 class="mb-0">Daftar Barang</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
+                <h4>Daftar Produk</h4>
+                <input type="text" class="form-control mb-3" id="searchInput" placeholder="Cari berdasarkan ID atau Nama Produk">
 
+                <div class="row" id="produkContainer">
+                <div class="row d-none" id="pelangganContainer"></div>
 
-                            <table class="table text-secondary text-center mb-0">
-                                <thead class="bg-primary text-white">
-                                    <tr>
-                                        <th class="text-left">ID</th>
-                                        <th class="text-center">Produk</th>
-                                        <th class="text-center">Harga</th>
-                                        <th class="text-center">jumlah</th>
-                                        <th class="text-center">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if(request('cari'))
-                                        @forelse($daftar_barang as $product)
-                                            <form action="{{ route('add') }}" method="POST">
-                                                @csrf
-                                                <tr>
-                                                    <td class="text-left text-secondary">
-                                                        <input type="number" class="w-100 bg-transparent text-left border-0"
-                                                            name="id" value="{{ $product->id_barang }}" readonly>
-                                                    </td>
-                                                    <td class="text-center text-secondary">
-                                                        <input type="text" class="w-100 bg-transparent text-center border-0"
-                                                            name="nama" value="{{ $product->namabarang }}" readonly>
-                                                    </td>
-                                                    <td class="text-center text-secondary">
-                                                        <input type="number" class="w-100 bg-transparent text-center border-0"
-                                                            name="harga" value="{{ $product->harga_barang }}" readonly>
-                                                    </td>
-                                                    <td class="text-center text-secondary">
-                                                        <input type="number" class="w-75 text-center bg-transparent border-0"
-                                                            name="stok" value="1">
-                                                    </td>
-                                                    <td class="text-center text-secondary">
-                                                        <button type="submit" class="btn btn-primary btn-sm">
-                                                            ADD
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            </form>
-                                        @empty
-                                            <tr>
-                                                <td colspan="5" class="text-center">Barang tidak ditemukan.</td>
-                                            </tr>
-                                        @endforelse
-                                    @endif
-                                </tbody>
-                            </table>
+                    @foreach ($barangs as $barang)
+                        <div class="col-md-3 mb-4 produk-item" data-id="{{ $barang->id_barang }}" data-nama="{{ strtolower($barang->namabarang) }}" data-harga="{{ $barang->harga_barang }}">
+                            <div class="card card-hover" onclick="selectProduk({{ $barang->id_barang }})">
+                                @if($barang->foto_barang)
+                                    <img src="{{ asset('storage/' . $barang->foto_barang) }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                                @else
+                                    <img src="https://via.placeholder.com/400x180?text=No+Image" class="card-img-top">
+                                @endif
+                                <div class="card-body">
+                                    <h5 class="card-title mb-1">{{ $barang->namabarang }}</h5>
+                                    <p class="card-text mb-1 d-none">ID: {{ $barang->id_barang }}</p>
+                                    <p class="card-text mb-1 ">Harga: Rp {{ number_format($barang->harga_barang, 0, ',', '.') }}</p>
+                                    <p class="card-text d-none">Stok: <span class="badge bg-success">{{ $barang->stok }}</span></p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
-        </div>
+
+            <!-- Kolom Kanan: Keranjang Pembelian -->
+            <div class="col-md-4">
+                <h4 class="mb-3">Nota Pembelian</h4>
+                <div class="mb-3 position-relative">
+                    <label for="cariPelanggan" class="form-label">Cari Pelanggan</label>
+                    <input type="text" class="form-control" id="inputPelanggan" placeholder="Pilih pelanggan..."style="cursor: pointer;">
+                    <ul class="list-group position-absolute w-100" id="hasilPelanggan" style="z-index: 1000;"></ul>
+                </div>
+
+                <ul class="list-group mb-3" id="keranjangList"></ul>
+
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <strong>Total:</strong>
+                    <strong id="totalBayar">Rp 0</strong>
+                </div>
+                <div class="mb-3 mt-3">
+                    <label for="inputBayar" class="form-label">Uang Dibayarkan</label>
+                    <input type="number" class="form-control" id="inputBayar" placeholder="Masukkan jumlah uang">
+                </div>
 
 
-
-
-            <div class="col-sm-12">
-                <div class="card card-primary">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="d-flex justify-content-between"> KASIR
-                        <a class="btn btn-danger float-right"
-                            onclick="javascript:return confirm('Apakah anda ingin reset keranjang ?');" href="{{route('resetkeranjang')}}">
-                            <b>RESET KERANJANG</b></a>
-                        </h5>
+                <button class="btn btn-success w-100 mt-3" onclick="submitPembayaran()">Bayar</button>
+            </div>
+            <!-- Modal -->
+           <div class="modal fade" id="notaModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content p-4" id="modalNotaContent">
+                    <div class="modal-header border-bottom-0">
+                        <h4 class="modal-title w-100 text-center fw-bold">NOTA PEMBAYARAN</h4>
                     </div>
-                    <div class="card-body">
-                        <form action="{{ route('bayar') }}" method="POST">
-                            @csrf
-                            <div id="keranjang" class="table-responsive">
-                                <table class="table table-bordered">
-                                    <tr>
-                                        <td class="col-sm-4"><b>Tanggal</b></td>
-                                        <td>
-                                            <input type="text" id="tanggal" name="tanggal" class="form-control"
-                                                value="{{ \Carbon\Carbon::now()->isoFormat('YYYY-MM-DD') }}" readonly>
-                                        </td>
-                                    </tr>
-                                </table>
-
-                                <table class="table table-bordered">
-                                    <tbody>
-                                        @if(session()->has('pelanggan') && count(session('pelanggan')) > 0)
-                                            @foreach(session('pelanggan') as $id_pelanggan => $orang)
-                                            <tr>
-                                                <td class="col-sm-4">
-                                                    <b>Pelanggan dengan ID</b><input type="text" name="id_pelanggan" value="{{ $orang['id_pelanggan'] }}" class="form-control bg-transparent border-0" readonly>
-                                                </td>
-                                                <td><input type="text" name="namaPelanggan" value="{{ $orang['nama'] }}" class="form-control bg-transparent border-0" readonly></td>
-                                            </tr>
-                                            @endforeach
-                                        @else
-                                            <tr>
-                                                <td class="col-sm-4">
-                                                    <b>Pelanggan dengan ID</b>
-                                                </td>
-                                                <td colspan="4" class="text-center">Masukkan Id Pelanggan</td>
-                                            </tr>
-                                        @endif
-                                    </tbody>
-                                </table>
-
-                                <table class="table table-bordered w-100" id="example1">
-                                    <thead>
-                                        <tr>
-                                            <td>No</td>
-                                            <td>Nama Barang</td>
-                                            <td>Harga Satuan</td>
-                                            <td>Jumlah</td>
-                                            <td>Total</td>
-                                            <td>Aksi</td>
-                                        </tr>
-                                    </thead>
-                                    @php $no = 1; @endphp
-                                    <tbody>
-                                        @if(session()->has('keranjang') && count(session('keranjang')) > 0)
-                                            @foreach(session('keranjang') as $id => $item)
-                                            <tr>
-                                                <td>{{ $no++ }}</td>
-                                                <td>
-                                                    <input type="text" name="nama[]" value="{{ $item['nama'] }}"
-                                                        class="form-control bg-transparent border-0" readonly>
-                                                </td>
-                                                <td>
-                                                    <input type="text" name="harga[]"
-                                                        value="{{$item['harga']}}"
-                                                        class="form-control bg-transparent border-0" readonly>
-                                                </td>
-                                                <td>
-                                                    <input type="number" name="jumlah[]" value="{{ $item['stok'] }}"
-                                                        class="form-control">
-                                                </td>
-                                                <td>
-                                                    <input type="text" name="total[]"
-                                                        value="{{$item['total']}}"
-                                                        class="form-control bg-transparent border-0" readonly>
-                                                </td>
-                                                <td>
-                                                    <a href="{{ route('hapusItem', $id) }}" class="btn btn-danger btn-sm">Hapus</a>
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        @else
-                                            <tr>
-                                                <td colspan="5" class="text-center">Keranjang kosong</td>
-                                            </tr>
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <br/>
-
-
-                            <div id="kasirnya">
-                                <table class="table table-stripped">
-                                    @if(isset($total_transaksi))
-                                    <tr>
-                                        <td>Total Semua</td>
-                                        <td>
-                                            <input type="text" class="form-control" name="total_transaksi"
-                                                value="Rp {{ number_format($total_transaksi ?? 0, 0, ',', '.') }}" readonly>
-                                        </td>
-                                        <td>Bayar</td>
-                                        <td>
-                                            <input type="number" class="form-control" name="bayar" min="0" required>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <input type="submit" class="btn btn-danger" value="Bayar">
-                                        </td>
-                                    </tr>
-                                    @endif
-
-                                </table>
-                            </div>
-                        </form>
-                        <div class="d-flex align-items-center gap-3">
-                            @if(isset($kembalian))
-                                <span>Kembali:</span>
-                                <input type="text" class="form-control w-auto" name="kembali" value="{{$kembalian}}" readonly>
-                                <a href="{{route('invoice')}}" class="btn btn-primary" >Cetak Nota</a>
-
-                            @endif
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>Nama Pelanggan:</strong> <span id="modalNamaPelanggan"></span></p>
+                            <p><strong>Tanggal:</strong> <span id="modalTanggal"></span></p>
                         </div>
-                        @yield('invoice')
+                        <div class="col-md-6 text-end">
+                            <p><strong>No. Transaksi:</strong> <span id="modalNoTransaksi"></span></p>
+                        </div>
+                        </div>
+
+                        <table class="table table-bordered table-striped">
+                        <thead class="table-dark text-center">
+                            <tr>
+                            <th>Deskripsi</th>
+                            <th>Jml</th>
+                            <th>Harga</th>
+                            <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalDaftarBarang">
+                            <!-- Diisi lewat JavaScript -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                            <td colspan="3" class="text-end"><strong>Total</strong></td>
+                            <td class="text-end fw-bold">Rp <span id="modalTotal"></span></td>
+                            </tr>
+                            <tr>
+                            <td colspan="3" class="text-end">Bayar</td>
+                            <td class="text-end">Rp <span id="modalBayar"></span></td>
+                            </tr>
+                            <tr>
+                            <td colspan="3" class="text-end">Kembalian</td>
+                            <td class="text-end">Rp <span id="modalKembalian"></span></td>
+                            </tr>
+                        </tfoot>
+                        </table>
+                    </div>
+                    <div class="modal-footer border-top-0">
+                        <button type="button" class="btn btn-primary" onclick="cetakModalSebagaiPDF()">Cetak Nota</button>
+                    </div>
                     </div>
                 </div>
-            </div>
+                </div>
+
+
+
+
+
         </div>
-
+    </div>
 
     <script>
-       function updateTanggal() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0'); // Tambah 1 karena Januari = 0
-            const day = String(now.getDate()).padStart(2, '0');
-            document.getElementById("tanggal").textContent = `${year}-${month}-${day}`;
+        const selectedProduk = new Map();
+
+        function selectProduk(id) {
+            const el = document.querySelector(`[data-id='${id}']`);
+            const nama = el.getAttribute('data-nama');
+            const harga = el.getAttribute('data-harga')
+            const imgEl = el.querySelector('img');
+            const foto = imgEl ? imgEl.src : null;
+
+            tambahProdukKeSementara(id, nama, harga, foto);
         }
 
-        // Panggil saat halaman dimuat
-        updateTanggal();
 
-        // Update setiap detik (opsional, jika ingin selalu real-time)
-        setInterval(updateTanggal, 1000);ountry name
-
-    </script>
-    <script>
-        function visible() {
-            var visibility = document.getElementById("profileVisibility");
-            var switchButton = document.getElementById("flexSwitchCheckDefault23");
-
-            if (switchButton.checked) {
-                visibility.innerHTML = "Switch to invisible";
-            } else {
-                visibility.innerHTML = "Switch to visible";
-            }
+        function hapusDariKeranjang(id) {
+            selectedProduk.delete(id);
+            const li = document.getElementById(`keranjang-item-${id}`);
+            if (li) li.remove();
         }
-    </script>
-    <script>
-        document.getElementById("cariPelanggan").addEventListener("input", function() {
-            if (this.value === "Pelanggan Tidak Ada") {
-                window.location.href = "{{ route('add_pel') }}"; // Redirect otomatis
+
+        function tambahKeKeranjang() {
+            if (selectedProduk.size === 0) {
+                alert('Silakan pilih minimal satu produk.');
+                return;
             }
+
+            // Kirim data ke server jika ingin disimpan (contoh dummy console log)
+            const selected = Array.from(selectedProduk.keys());
+            console.log('Barang yang dibeli:', selected);
+
+            alert('Produk berhasil ditambahkan!');
+            // Reset keranjang
+            selectedProduk.clear();
+            document.getElementById('keranjangList').innerHTML = '';
+        }
+
+        // Fitur Pencarian
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const keyword = this.value.toLowerCase();
+            document.querySelectorAll('.produk-item').forEach(function (item) {
+                const id = item.getAttribute('data-id');
+                const nama = item.getAttribute('data-nama');
+                const visible = id.includes(keyword) || nama.includes(keyword);
+                item.style.display = visible ? '' : 'none';
+            });
         });
     </script>
-    <!--   Core JS Files   -->
+    <script>
+    let keranjangSementara = [];
+
+    function tambahProdukKeSementara(id, nama, harga, foto) {
+        const index = keranjangSementara.findIndex(item => item.id === id);
+        if (index > -1) {
+            keranjangSementara[index].qty += 1;
+        } else {
+            keranjangSementara.push({ id, nama, harga, qty: 1, foto });
+        }
+        tampilkanKeranjang();
+    }
+
+
+    function tampilkanKeranjang() {
+        const list = document.getElementById('keranjangList');
+        list.innerHTML = '';
+
+        let total = 0;
+
+        keranjangSementara.forEach((item, index) => {
+            const subtotal = item.qty * item.harga;
+            total += subtotal;
+
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+
+            li.innerHTML = `
+                <div class="d-flex align-items-center justify-content-between">
+                    <button class="btn btn-sm btn-danger me-2" onclick="hapusItem(${index})">×</button>
+
+                    <img src="${item.foto || 'https://via.placeholder.com/50'}" alt="img" class="me-2" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${item.nama}</div>
+                        <small>Rp ${item.harga.toLocaleString()}</small>
+                    </div>
+
+                    <input type="number" min="1" value="${item.qty}" class="form-control form-control-sm mb-1"
+                         onchange="updateQty(${index}, this.value)">
+                    <div class="m-2"><strong>Rp ${subtotal.toLocaleString()}</strong></div>
+                </div>
+            `;
+
+            list.appendChild(li);
+        });
+
+        document.getElementById('totalBayar').innerText = 'Rp ' + total.toLocaleString();
+    }
+
+    function updateQty(index, qty) {
+        const jumlah = parseInt(qty);
+        if (jumlah > 0) {
+            keranjangSementara[index].qty = jumlah;
+        }
+        tampilkanKeranjang();
+    }
+
+    function hapusItem(index) {
+        keranjangSementara.splice(index, 1);
+        tampilkanKeranjang();
+    }
+
+    function submitPembayaran() {
+        if (keranjangSementara.length === 0) {
+            alert('Keranjang kosong!');
+            return;
+        }
+
+        // Kirim via AJAX atau arahkan ke halaman bayar sesuai kebutuhan
+        console.log('Checkout:', keranjangSementara);
+        alert('Pembayaran diproses!');
+    }
+    </script>
+    <script>
+        const semuaPelanggan = @json($pelanggan);
+    </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const inputPelanggan = document.getElementById('inputPelanggan');
+    const hasilPelanggan = document.getElementById('hasilPelanggan');
+    const daftarPelanggan = semuaPelanggan;
+
+    inputPelanggan.addEventListener('input', function () {
+        const keyword = this.value.toLowerCase();
+        hasilPelanggan.innerHTML = '';
+
+        const cocok = daftarPelanggan.filter(p => p.nama.toLowerCase().includes(keyword));
+
+        if (cocok.length === 0) {
+            hasilPelanggan.innerHTML = `
+                <li class="list-group-item text-center text-muted">Pelanggan tidak ditemukan</li>
+            `;
+        } else {
+            cocok.forEach(p => {
+                const item = document.createElement('li');
+                item.className = 'list-group-item list-group-item-action';
+                item.style.cursor = 'pointer';
+                item.innerHTML = `<strong>${p.nama}</strong><br><small>${p.alamat || ''}</small>`;
+                item.addEventListener('click', () => {
+                    inputPelanggan.value = p.nama;
+                    hasilPelanggan.innerHTML = '';
+                });
+                hasilPelanggan.appendChild(item);
+            });
+        }
+
+        // Tambahkan tombol tambah pelanggan di bagian bawah
+        const tambahBtn = document.createElement('li');
+        tambahBtn.className = 'list-group-item text-center';
+        tambahBtn.innerHTML = `<a href="{{ route('add_pel') }}" class="btn btn-sm btn-outline-primary w-100">+ Tambah Pelanggan Baru</a>`;
+        hasilPelanggan.appendChild(tambahBtn);
+    });
+
+    inputPelanggan.addEventListener('focus', () => {
+        inputPelanggan.dispatchEvent(new Event('input'));
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!inputPelanggan.contains(e.target) && !hasilPelanggan.contains(e.target)) {
+            hasilPelanggan.innerHTML = '';
+        }
+    });
+});
+function tampilkanModalKonfirmasi(data) {
+    document.getElementById('modalNamaPelanggan').textContent = data.nama_pelanggan;
+    document.getElementById('modalTanggal').textContent = new Date().toLocaleDateString('id-ID');
+    document.getElementById('modalNoTransaksi').textContent = data.id_penjualan || '-';
+
+    document.getElementById('modalTotal').textContent = parseInt(data.total).toLocaleString();
+    document.getElementById('modalBayar').textContent = parseInt(data.bayar).toLocaleString();
+    document.getElementById('modalKembalian').textContent = parseInt(data.kembalian).toLocaleString();
+
+    // Isi daftar barang
+    const daftarBarang = document.getElementById('modalDaftarBarang');
+    daftarBarang.innerHTML = ''; // Kosongkan
+
+    data.barang?.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.nama}</td>
+            <td class="text-center">${item.qty}</td>
+            <td class="text-end">Rp ${parseInt(item.harga).toLocaleString()}</td>
+            <td class="text-end">Rp ${(item.qty * item.harga).toLocaleString()}</td>
+        `;
+        daftarBarang.appendChild(tr);
+    });
+
+    const notaModal = new bootstrap.Modal(document.getElementById('notaModal'));
+    notaModal.show();
+}
+
+function submitPembayaran() {
+    const inputPelanggan = document.getElementById('inputPelanggan');
+    const pelanggan = semuaPelanggan.find(p => p.nama === inputPelanggan.value);
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+
+    if (!pelanggan) {
+        alert('Pilih pelanggan terlebih dahulu!');
+        return;
+    }
+
+    if (!csrfMeta) {
+        alert('CSRF token tidak ditemukan di halaman.');
+        return;
+    }
+
+    const csrfToken = csrfMeta.getAttribute('content');
+    const bayar = parseInt(document.getElementById('inputBayar')?.value || 0);
+
+    const totalText = document.getElementById('totalBayar').innerText;
+    const totalClean = parseInt(totalText.replace(/[^\d]/g, '')) || 0;
+
+    if (bayar < totalClean) {
+        alert('Jumlah uang dibayarkan kurang dari total!');
+        return;
+    }
+
+    const data = {
+        id_pelanggan: pelanggan.id_pelanggan,
+        bayar: bayar,
+        total: totalClean,
+        keranjang: keranjangSementara
+    };
+
+    fetch('/bayar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(async res => {
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return res.json();
+        } else {
+            const text = await res.text();
+            throw new Error('Respons bukan JSON: ' + text);
+        }
+    })
+    .then(response => {
+        if (response.success) {
+            // Tambahkan informasi nama pelanggan, bayar, dan kembalian
+            tampilkanModalKonfirmasi({
+                ...response.data,
+                nama_pelanggan: pelanggan.nama,
+                bayar: bayar,
+                kembalian: bayar - totalClean
+            });
+
+            // Reset keranjang dan input
+            keranjangSementara = [];
+            tampilkanKeranjang();
+            document.getElementById('inputBayar').value = '';
+            document.getElementById('inputPelanggan').value = '';
+        } else {
+            alert(response.message || 'Gagal melakukan pembayaran.');
+        }
+    })
+    .catch(err => {
+        console.error('Gagal fetch:', err.message);
+        alert('Error detail: ' + err.message);
+    });
+}
+
+
+
+function prosesPembayaranFinal() {
+    const data = window.dataPembayaran;
+
+    fetch('/kasir/selesai', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(response => {
+        alert('Pembayaran berhasil!');
+        keranjangSementara = [];
+        tampilkanKeranjang();
+        document.getElementById('inputBayar').value = '';
+        document.getElementById('inputPelanggan').value = '';
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalKonfirmasiBayar'));
+        modal.hide();
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Terjadi kesalahan saat menyimpan data.');
+    });
+}
+</script>
+<script>
+function cetakModalSebagaiPDF() {
+    const modalContent = document.getElementById('modalNotaContent');
+
+    html2canvas(modalContent).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save("nota-pembayaran.pdf");
+    });
+}
+</script>
+
+
+
+
+
+
+   <!--   Core JS Files   -->
     <script src="../assets/js/core/popper.min.js"></script>
     <script src="../assets/js/core/bootstrap.min.js"></script>
     <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
@@ -367,21 +543,10 @@
                 initialSlide: 1,
                 navigation: {
                     nextEl: '.swiper-button-next',
-   <script>
-        document.getElementById("cariPelanggan").addEventListener("input", function() {
-            if (this.value === "Pelanggan Tidak Ada") {
-                window.location.href = "{{ route('add_pel') }}"; // Redirect otomatis
-            }
-        });
-    </script>
-    <!--   Core JS Files   -->
-    <script src="../assets/js/core/popper.min.js"></script>
-    <script src="../assets/js/core/bootstrap.min.js"></script>
-    <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
-    <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
-    <script src="../assets/js/plugins/chartjs.min.js"></script>
-    <script src="../assets/js/plugins/swiper-bundle.min.js" type="text/javascript"></script>
-    <script>
+                    prevEl: '.swiper-button-prev',
+                },
+            });
+        };
         if (document.getElementsByClassName('mySwiper')) {
             var swiper = new Swiper(".mySwiper", {
                 effect: "cards",
