@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <title>Document</title>
+        <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/remenpartdua.png">
+    <link rel="icon" type="image/png" href="../assets/img/remenpartdua.png">
+    <title>penjualan</title>
 </head>
 <body>
 <x-app-layout>

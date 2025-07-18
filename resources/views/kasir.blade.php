@@ -51,10 +51,10 @@
 
     @endif
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/remen.svg">
+    <link rel="icon" type="image/png" href="../assets/img/remen.svg">
     <title>
-        Corporate UI by Creative Tim & UPDIVISION
+        REMEN COFFE
     </title>
     <!--     Fonts and icons     -->
     <link
@@ -86,118 +86,123 @@
     <x-app.sidebar_kasir :name="'Kasir'" />
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg p-4 ">
         <x-app.navbar />
-    <div class="container-fluid p-4">
-        <div class="row">
-            <!-- Kolom Kiri: Daftar Produk -->
-            <div class="col-md-8">
-                <h4>Daftar Produk</h4>
-                <input type="text" class="form-control mb-3" id="searchInput" placeholder="Cari berdasarkan ID atau Nama Produk">
+    <div class="container-fluid p-4" style="background-color: #FAF9F6;">
+    <div class="row">
+        <!-- Kolom Kiri: Daftar Produk -->
+        <div class="col-md-8">
+            <h4 class="mb-3" style="color: #4E342E;">☕ Daftar Produk</h4>
+            <input type="text" class="form-control mb-3" id="searchInput" placeholder="Cari berdasarkan ID atau Nama Produk" style="border-color: #BB9587;">
 
-                <div class="row" id="produkContainer">
+            <div class="row" id="produkContainer">
                 <div class="row d-none" id="pelangganContainer"></div>
 
-                    @foreach ($barangs as $barang)
-                        <div class="col-md-3 mb-4 produk-item" data-id="{{ $barang->id_barang }}" data-nama="{{ strtolower($barang->namabarang) }}" data-harga="{{ $barang->harga_barang }}">
-                            <div class="card card-hover" onclick="selectProduk({{ $barang->id_barang }})">
-                                @if($barang->foto_barang)
-                                    <img src="{{ asset('storage/' . $barang->foto_barang) }}" class="card-img-top" style="height: 180px; object-fit: cover;">
-                                @else
-                                    <img src="https://via.placeholder.com/400x180?text=No+Image" class="card-img-top">
-                                @endif
-                                <div class="card-body">
-                                    <h5 class="card-title mb-1">{{ $barang->namabarang }}</h5>
-                                    <p class="card-text mb-1 d-none">ID: {{ $barang->id_barang }}</p>
-                                    <p class="card-text mb-1 ">Harga: Rp {{ number_format($barang->harga_barang, 0, ',', '.') }}</p>
-                                    <p class="card-text d-none">Stok: <span class="badge bg-success">{{ $barang->stok }}</span></p>
-                                </div>
+                @foreach ($barangs as $barang)
+                    <div class="col-md-3 mb-4 produk-item" data-id="{{ $barang->id_barang }}" data-nama="{{ strtolower($barang->namabarang) }}" data-harga="{{ $barang->harga_barang }}">
+                        <div class="card card-hover shadow-sm" onclick="selectProduk({{ $barang->id_barang }})" style="cursor: pointer; border: 1px solid #e0d8ce;">
+                            @if($barang->foto_barang)
+                                <img src="{{ asset('storage/' . $barang->foto_barang) }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                            @else
+                                <img src="https://via.placeholder.com/400x180?text=No+Image" class="card-img-top">
+                            @endif
+                            <div class="card-body">
+                                <h5 class="card-title mb-1 text-dark">{{ $barang->namabarang }}</h5>
+                                <p class="card-text mb-1 text-muted small">Harga: Rp {{ number_format($barang->harga_barang, 0, ',', '.') }}</p>
                             </div>
                         </div>
-                    @endforeach
-                </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Kolom Kanan: Keranjang Pembelian -->
+        <div class="col-md-4">
+            <h4 class="mb-3" style="color: #4E342E;">🧾 Nota Pembelian</h4>
+
+            <div class="mb-3 position-relative">
+                <label for="cariPelanggan" class="form-label text-muted">Cari Pelanggan</label>
+                <input type="text" class="form-control" id="inputPelanggan" placeholder="Pilih pelanggan..." style="cursor: pointer; border-color: #BB9587;">
+                <ul class="list-group position-absolute w-100" id="hasilPelanggan" style="z-index: 1000;"></ul>
             </div>
 
-            <!-- Kolom Kanan: Keranjang Pembelian -->
-            <div class="col-md-4">
-                <h4 class="mb-3">Nota Pembelian</h4>
-                <div class="mb-3 position-relative">
-                    <label for="cariPelanggan" class="form-label">Cari Pelanggan</label>
-                    <input type="text" class="form-control" id="inputPelanggan" placeholder="Pilih pelanggan..."style="cursor: pointer;">
-                    <ul class="list-group position-absolute w-100" id="hasilPelanggan" style="z-index: 1000;"></ul>
-                </div>
+            <ul class="list-group mb-3" id="keranjangList"></ul>
 
-                <ul class="list-group mb-3" id="keranjangList"></ul>
-
-                <div class="d-flex justify-content-between align-items-center mt-2">
-                    <strong>Total:</strong>
-                    <strong id="totalBayar">Rp 0</strong>
-                </div>
-                <div class="mb-3 mt-3">
-                    <label for="inputBayar" class="form-label">Uang Dibayarkan</label>
-                    <input type="number" class="form-control" id="inputBayar" placeholder="Masukkan jumlah uang">
-                </div>
-
-
-                <button class="btn btn-success w-100 mt-3" onclick="submitPembayaran()">Bayar</button>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <strong style="color: #4E342E;">Total:</strong>
+                <strong id="totalBayar" class="text-success">Rp 0</strong>
             </div>
-            <!-- Modal -->
-           <div class="modal fade" id="notaModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content p-4" id="modalNotaContent">
-                    <div class="modal-header border-bottom-0">
-                        <h4 class="modal-title w-100 text-center fw-bold">NOTA PEMBAYARAN</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p><strong>Nama Pelanggan:</strong> <span id="modalNamaPelanggan"></span></p>
-                            <p><strong>Tanggal:</strong> <span id="modalTanggal"></span></p>
-                        </div>
-                        <div class="col-md-6 text-end">
-                            <p><strong>No. Transaksi:</strong> <span id="modalNoTransaksi"></span></p>
-                        </div>
-                        </div>
 
-                        <table class="table table-bordered table-striped">
-                        <thead class="table-dark text-center">
-                            <tr>
-                            <th>Deskripsi</th>
-                            <th>Jml</th>
-                            <th>Harga</th>
-                            <th>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody id="modalDaftarBarang">
-                            <!-- Diisi lewat JavaScript -->
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                            <td colspan="3" class="text-end"><strong>Total</strong></td>
-                            <td class="text-end fw-bold">Rp <span id="modalTotal"></span></td>
-                            </tr>
-                            <tr>
-                            <td colspan="3" class="text-end">Bayar</td>
-                            <td class="text-end">Rp <span id="modalBayar"></span></td>
-                            </tr>
-                            <tr>
-                            <td colspan="3" class="text-end">Kembalian</td>
-                            <td class="text-end">Rp <span id="modalKembalian"></span></td>
-                            </tr>
-                        </tfoot>
-                        </table>
-                    </div>
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-primary" onclick="cetakModalSebagaiPDF()">Cetak Nota</button>
-                    </div>
-                    </div>
-                </div>
+            <div class="mb-3 mt-3">
+                <label for="inputBayar" class="form-label text-muted">Uang Dibayarkan</label>
+                <input type="number" class="form-control" id="inputBayar" placeholder="Masukkan jumlah uang" style="border-color: #BB9587;">
+            </div>
+
+            <button class="btn w-100 mt-3" onclick="submitPembayaran()" style="background-color: #6B8E23; color: white;">Bayar</button>
+        </div>
+
+        <!-- Modal Nota -->
+        <div class="modal fade" id="notaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+        <div class="modal-content p-4" id="modalNotaContent" style="background-color: #fefefe; font-family: monospace; font-size: 14px;">
+            <div class="modal-header border-0 pb-1">
+                <h5 class="modal-title w-100 text-center" style="font-weight: bold;">REMEN COFFEE</h5>
+            </div>
+            <div class="text-center mb-2" style="border-bottom: 1px dashed #999;">
+                <small>Jl.Parangtiritis KM.11,Sabdodadi | 0877-2690-6687</small>
+            </div>
+            <div class="modal-body pt-0">
+                <div class="mb-2">
+                    <div><strong>Nama:</strong> <span id="modalNamaPelanggan"></span></div>
+                    <div><strong>Tanggal:</strong> <span id="modalTanggal"></span></div>
+                    <div><strong>No. Transaksi:</strong> <span id="modalNoTransaksi"></span></div>
                 </div>
 
+                <hr style="border-top: 1px dashed #999; margin: 8px 0;">
 
+                <table class="w-100" style="font-size: 13px;">
+                    <thead>
+                        <tr>
+                            <th align="left">Item</th>
+                            <th align="center">Jml</th>
+                            <th align="right">Harga</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalDaftarBarang"></tbody>
+                </table>
 
+                <hr style="border-top: 1px dashed #999; margin: 8px 0;">
 
+                <table class="w-100">
+                    <tr>
+                        <td align="left">Total</td>
+                        <td align="right">Rp <span id="modalTotal"></span></td>
+                    </tr>
+                    <tr>
+                        <td align="left">Bayar</td>
+                        <td align="right">Rp <span id="modalBayar"></span></td>
+                    </tr>
+                    <tr>
+                        <td align="left">Kembalian</td>
+                        <td align="right">Rp <span id="modalKembalian"></span></td>
+                    </tr>
+                </table>
 
+                <hr style="border-top: 1px dashed #999; margin: 8px 0;">
+
+                <div class="text-center">
+                    <p style="margin: 0;">Terima kasih!</p>
+                    <p style="margin: 0;">~ Remen Coffee ~</p>
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button class="btn btn-dark btn-sm" onclick="cetakModalSebagaiPDF()">Cetak Struk</button>
+            </div>
         </div>
     </div>
+</div>
+
+    </div>
+</div>
+
 
     <script>
         const selectedProduk = new Map();

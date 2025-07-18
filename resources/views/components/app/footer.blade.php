@@ -8,8 +8,7 @@
                     document.write(new Date().getFullYear())
                 </script>
                 made with <i class="fa fa-heart"></i> by
-                <a href="#" class="text-secondary text-bold" target="_blank">Dzulfikar|8</a> &
-                <a href="#" class="text-secondary text-bold" target="_blank">Victorio|32</a>
+                <a href="#" class="text-secondary text-bold" target="_blank">Remen Coffe</a>
             </div>
         </div>
         <div class="col-lg-6">

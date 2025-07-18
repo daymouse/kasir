@@ -1,4 +1,6 @@
 <head>
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/remenpartdua.png">
+    <link rel="icon" type="image/png" href="../assets/img/remenpartdua.png">
     <title>Users Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
